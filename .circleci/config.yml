@@ -6,4 +6,5 @@ workflows:
     jobs:
       - docker/publish:
           image: rogerdurich/express
+          tag: latest
           update-description: true
