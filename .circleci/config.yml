@@ -1,33 +1,9 @@
 version: 2.1
-orbs:
-  docker:
-    image: <<parameters.image>>:<<parameters.tag>>
-    parameters:
-      image:
-        default: circleci/python
-        description: Docker image name
-        type: string
-      tag:
-        default: '3.6'
-        description: Image tag
-        type: string    
-jobs:
-  build-and-push:
-    executor: docker/docker
-    shell: docker login -u rogerdurich -p $DOCKER_PASSWORD
-    steps:
-      - setup_remote_docker
-      - checkout
-      - docker/check
-      - docker/build:
-          image: rogerdurich/express
-      - docker/push:
-          digest-path: /tmp/digest.txt
-          image: rogerdurich/express
-      - run:
-          command: |
-            echo "Digest is: $(</tmp/digest.txt)"
+orbs: 
+  docker: circleci/docker@2.0.1
 workflows:
-  commit:
+  build-docker-image-only:
     jobs:
-      - build-and-push
+      - docker/publish:
+          image: rogerdurich/express
+          update-description: true
