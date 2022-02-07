@@ -36,11 +36,3 @@ jobs:
     - celebrate
     - run:
         command: echo We did it!
-
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
-workflows:
-  build-and-push-docker:
-    jobs:
-      - build
-      - party
