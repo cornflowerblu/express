@@ -29,9 +29,13 @@ jobs:
               docker tag rogerdurich/express:latest
             fi
             docker push rogerdurich/express
-    party:
-      run:
-        command: "We did it!"
+  party:
+    docker:
+      - image: ubuntu
+    steps:
+    - celebrate
+    run:
+      command: echo We did it!
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
