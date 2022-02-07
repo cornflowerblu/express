@@ -1,38 +1,33 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+orbs:
+  docker:
+    image: <<parameters.image>>:<<parameters.tag>>
+    parameters:
+      image:
+        default: circleci/python
+        description: Docker image name
+        type: string
+      tag:
+        default: '3.6'
+        description: Image tag
+        type: string    
 jobs:
-  build:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-    - image: docker
-      auth:
-        username: rogerdurich
-        password: $DOCKER_PASSWORD
-
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+  build-and-push:
+    executor: docker/docker
+    shell: docker login -u rogerdurich -p $DOCKER_PASSWORD
     steps:
+      - setup_remote_docker
+      - checkout
+      - docker/check
+      - docker/build:
+          image: rogerdurich/express
+      - docker/push:
+          digest-path: /tmp/digest.txt
+          image: rogerdurich/express
       - run:
           command: |
-            docker build -t rogerdurich/express .
-            docker tag rogerdurich/express:<<pipeline.id>>
-            if[<<pipeline.git.branch>> = main]
-            then
-              docker tag rogerdurich/express:latest
-            fi
-            docker push rogerdurich/express
-  party:
-    docker:
-      - image: ubuntu
-    steps:
-    - run:
-        command: echo We did it!
--workflows:
+            echo "Digest is: $(</tmp/digest.txt)"
+workflows:
+  commit:
     jobs:
-      - build
-      - party
+      - build-and-push
